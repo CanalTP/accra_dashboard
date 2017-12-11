@@ -216,6 +216,26 @@ def get_line_complementary_infos_from_trips(trips_source_data):
         })
     return pd.DataFrame(route_infos)
 
+def get_stops_data(gtfs_source):
+    with zipfile.ZipFile(gtfs_source, 'r') as myzip:
+        stops_data = pd.read_csv(myzip.open('stops.txt'))
+    return stops_data
+
+def get_stops_per_line(gtfs_source):
+    with zipfile.ZipFile(gtfs_source, 'r') as myzip:
+        stop_times_data = pd.read_csv(myzip.open('stop_times.txt'))
+        for c in stop_times_data.columns:
+            if c not in ["trip_id", "stop_id"]:
+                stop_times_data = stop_times_data.drop(c, axis=1)
+        stop_times_data = stop_times_data.drop_duplicates(subset=["trip_id", "stop_id"])
+        trips_data = pd.read_csv(myzip.open('trips.txt'))
+    trips_data = trips_data.merge(stop_times_data, how='left', on='trip_id')
+    trips_data = trips_data.drop_duplicates(subset=["route_id", "stop_id"])
+    for c in trips_data.columns:
+        if c not in ["route_id", "stop_id"]:
+            trips_data = trips_data.drop(c, axis=1)
+    return trips_data
+
 if __name__ == "__main__":
     gtfs_source = "https://github.com/AFDLab4Dev/AccraMobility/raw/master/GTFS/GTFS_Accra.zip"
     CO2_source = "data/co2_per_line.csv"
@@ -235,5 +255,9 @@ if __name__ == "__main__":
     lines_data = get_lines_infos(gtfs_file, CO2_source, 150)
     lines_data = lines_data.merge(line_complementary_infos_from_trips, how='left', on="route_id")
     lines_data["total_co2"] = lines_data["yearly_distance_km"] * lines_data["co2_per_km"]
-    # stoppoint avec lien vers ligne
     lines_data.to_sql("lines_infos", db_conn, if_exists="replace")
+
+    stops_data = get_stops_data(gtfs_file)
+    stops_data.to_sql("stops", db_conn, if_exists="replace")
+    stops_per_line = get_stops_per_line(gtfs_file)
+    stops_per_line.to_sql("stops_per_line", db_conn, if_exists="replace")
