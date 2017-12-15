@@ -155,6 +155,25 @@ def get_calendar_active_days(gtfs_source):
         })
     return pd.DataFrame(serice_data)
 
+def get_trip_duration(gtfs_source):
+    with zipfile.ZipFile(gtfs_source, 'r') as myzip:
+        stop_times_data = pd.read_csv(myzip.open('stop_times.txt'))
+
+    stop_times_data["arrival_time"] = stop_times_data["arrival_time"].map(lambda x: int(x.split(':')[0])*3600 + int(x.split(':')[1])*60 + int(x.split(':')[2]))
+    stop_times_data["departure_time"] = stop_times_data["departure_time"].map(lambda x: int(x.split(':')[0])*3600 + int(x.split(':')[1])*60 + int(x.split(':')[2]))
+    grouped_stop_times = stop_times_data.groupby('trip_id')
+    trip_infos = []
+    for trip_id in grouped_stop_times.groups:
+        trips_group = grouped_stop_times.get_group(trip_id)
+        trips_group = trips_group.sort_values('stop_sequence')
+        trip_start = trips_group.head(n=1)
+        trip_end = trips_group.tail(n=1)
+        trip_duration = int(trip_end["arrival_time"]) - int(trip_start["departure_time"])
+        trip_infos.append({
+            "trip_id" : trip_id,
+            "trip_duration" : trip_duration
+        })
+    return pd.DataFrame(trip_infos)
 
 def get_trips_detailed_infos(gtfs_source):
     with zipfile.ZipFile(gtfs_source, 'r') as myzip:
@@ -164,11 +183,13 @@ def get_trips_detailed_infos(gtfs_source):
     shape_infos = get_shape_infos(gtfs_source)
     frequencies_infos = get_trip_frequencies(gtfs_source)
     service_data = get_calendar_active_days(gtfs_source)
+    trips_duration = get_trip_duration(gtfs_source)
 
     trips_data = trips_data.merge(shape_infos, how='left', on="shape_id")
     trips_data = trips_data.merge(frequencies_infos, how='left', on="trip_id")
     trips_data["trip_daily_count"] = trips_data["trip_daily_count"].fillna(1)
     trips_data = trips_data.merge(service_data, how='left', on="service_id")
+    trips_data = trips_data.merge(trips_duration, how='left', on='trip_id')
     return trips_data
 
 
@@ -205,14 +226,18 @@ def get_line_complementary_infos_from_trips(trips_source_data):
         trips_data["total_day_count"]
     )
     trips_data["trip_yearly_length"] = trips_data["shape_length_in_meter"] * trips_data["trip_yearly_count"]
+    # for each trip, compute commercial speed in km/h
+    trips_data["trip_speed_kmh"] = 3.6 * (trips_data["shape_length_in_meter"] / trips_data["trip_duration"])
     grouped_trips = trips_data.groupby('route_id')
     route_infos = []
     for route_id in grouped_trips.groups:
         trips = grouped_trips.get_group(route_id)
         total_length = sum(trips["trip_yearly_length"])
+        speed_kmh = sum(trips["trip_speed_kmh"])/len(trips)
         route_infos.append( {
             "route_id": route_id,
-            "yearly_distance_km": total_length / 1000
+            "yearly_distance_km": total_length / 1000,
+            "speed_kmh" : speed_kmh
         })
     return pd.DataFrame(route_infos)
 
