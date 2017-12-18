@@ -167,10 +167,20 @@ def get_trip_duration(gtfs_source):
         trip_start = trips_group.head(n=1)
         trip_end = trips_group.tail(n=1)
         # Check the presence of arrival/departure times
-        c_start = "departure_time" if not(trip_start["departure_time"].empty) else "arrival_time"
-        trip_start_time = trip_start[c_start].map(lambda x: int(x.split(':')[0])*3600 + int(x.split(':')[1])*60 + int(x.split(':')[2]))
-        c_end = "arrival_time" if not(trip_end["arrival_time"].empty) else "departure_time"
-        trip_end_time = trip_end[c_end].map(lambda x: int(x.split(':')[0])*3600 + int(x.split(':')[1])*60 + int(x.split(':')[2]))
+        if not(trip_start["departure_time"].empty):
+            trip_start_time = trip_start["departure_time"]
+        elif not(trip_start["arrival_time"].empty):
+            trip_start_time = trip_start["arrival_time"]
+        else:
+            raise ValueError('No arrival/departure times specified for the first stop of the trip {}.'.format(trip_id))
+        trip_start_time = trip_start_time.map(lambda x: int(x.split(':')[0])*3600 + int(x.split(':')[1])*60 + int(x.split(':')[2]))
+        if not(trip_end["arrival_time"].empty):
+            trip_end_time = trip_end["arrival_time"]
+        elif not(trip_end["departure_time"].empty):
+            trip_end_time = trip_end["departure_time"]
+        else:
+            raise ValueError('No arrival/departure times specified for the last stop of the trip {}.'.format(trip_id))
+        trip_end_time = trip_end_time.map(lambda x: int(x.split(':')[0])*3600 + int(x.split(':')[1])*60 + int(x.split(':')[2]))
         trip_duration = int(trip_end_time) - int(trip_start_time)
         trip_infos.append({
             "trip_id" : trip_id,
@@ -209,8 +219,8 @@ def get_line_validity(trips_source_data):
     route_infos = []
     for route_id in grouped_trips.groups:
         trips = grouped_trips.get_group(route_id)
-        min_date = min(trips["start_date"]).to_datetime()
-        max_date = min(trips["end_date"]).to_datetime()
+        min_date = min(trips["start_date"]).to_pydatetime()
+        max_date = min(trips["end_date"]).to_pydatetime()
         delta = (max_date - min_date).days + 1
         route_infos.append( {
             "route_id": route_id,
