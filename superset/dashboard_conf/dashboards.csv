@@ -70,7 +70,7 @@ created_on,changed_on,id,dashboard_title,position_json,created_by_fk,changed_by_
         ""row"": 11,
         ""col"": 1
     }
-]",,,,,world_health,
+]","","","","",world_health,""
 "2017-11-29 14:09:47.509078","2017-11-29 14:09:47.509117",2,Births,"[
     {
         ""size_x"": 2,
@@ -135,7 +135,7 @@ created_on,changed_on,id,dashboard_title,position_json,created_by_fk,changed_by_
         ""row"": 2,
         ""col"": 1
     }
-]",,,,,births,
+]","","","","",births,""
 "2017-11-29 14:10:01.281925","2017-11-29 14:10:01.281964",3,"Misc Charts","[
     {
         ""size_x"": 6,
@@ -179,8 +179,8 @@ created_on,changed_on,id,dashboard_title,position_json,created_by_fk,changed_by_
         ""row"": 0,
         ""col"": 1
     }
-]",,,,,misc_charts,
-"2017-11-29 14:52:16.327995","2017-12-22 14:04:04.225583",4,"Accra Mobility","[
+]","","","","",misc_charts,""
+"2017-11-29 14:52:16.327995","2018-01-05 16:05:01.710780",4,"Accra Mobility","[
     {
         ""col"": 1,
         ""row"": 2,
@@ -189,25 +189,11 @@ created_on,changed_on,id,dashboard_title,position_json,created_by_fk,changed_by_
         ""slice_id"": ""39""
     },
     {
-        ""col"": 1,
-        ""row"": 4,
-        ""size_x"": 2,
-        ""size_y"": 3,
-        ""slice_id"": ""40""
-    },
-    {
         ""col"": 11,
         ""row"": 0,
         ""size_x"": 2,
-        ""size_y"": 3,
+        ""size_y"": 4,
         ""slice_id"": ""41""
-    },
-    {
-        ""col"": 11,
-        ""row"": 3,
-        ""size_x"": 2,
-        ""size_y"": 5,
-        ""slice_id"": ""43""
     },
     {
         ""col"": 3,
@@ -227,28 +213,14 @@ created_on,changed_on,id,dashboard_title,position_json,created_by_fk,changed_by_
         ""col"": 9,
         ""row"": 0,
         ""size_x"": 2,
-        ""size_y"": 3,
+        ""size_y"": 2,
         ""slice_id"": ""51""
     },
     {
         ""col"": 9,
-        ""row"": 6,
+        ""row"": 8,
         ""size_x"": 2,
         ""size_y"": 2,
-        ""slice_id"": ""52""
-    },
-    {
-        ""col"": 6,
-        ""row"": 4,
-        ""size_x"": 3,
-        ""size_y"": 4,
-        ""slice_id"": ""54""
-    },
-    {
-        ""col"": 1,
-        ""row"": 7,
-        ""size_x"": 2,
-        ""size_y"": 3,
         ""slice_id"": ""56""
     },
     {
@@ -259,71 +231,36 @@ created_on,changed_on,id,dashboard_title,position_json,created_by_fk,changed_by_
         ""slice_id"": ""57""
     },
     {
-        ""col"": 3,
-        ""row"": 4,
-        ""size_x"": 3,
-        ""size_y"": 4,
-        ""slice_id"": ""61""
-    },
-    {
-        ""col"": 3,
-        ""row"": 12,
-        ""size_x"": 3,
-        ""size_y"": 3,
-        ""slice_id"": ""62""
-    },
-    {
-        ""col"": 6,
-        ""row"": 12,
-        ""size_x"": 2,
-        ""size_y"": 3,
-        ""slice_id"": ""63""
-    },
-    {
         ""col"": 9,
-        ""row"": 3,
+        ""row"": 2,
         ""size_x"": 2,
-        ""size_y"": 3,
+        ""size_y"": 2,
         ""slice_id"": ""64""
     },
     {
-        ""col"": 3,
-        ""row"": 8,
-        ""size_x"": 2,
-        ""size_y"": 4,
-        ""slice_id"": ""65""
-    },
-    {
-        ""col"": 5,
-        ""row"": 10,
-        ""size_x"": 4,
-        ""size_y"": 2,
-        ""slice_id"": ""66""
-    },
-    {
-        ""col"": 5,
-        ""row"": 8,
-        ""size_x"": 2,
+        ""col"": 7,
+        ""row"": 6,
+        ""size_x"": 3,
         ""size_y"": 2,
         ""slice_id"": ""67""
     },
     {
-        ""col"": 7,
-        ""row"": 8,
-        ""size_x"": 2,
+        ""col"": 10,
+        ""row"": 6,
+        ""size_x"": 3,
         ""size_y"": 2,
         ""slice_id"": ""68""
     },
     {
-        ""col"": 9,
+        ""col"": 1,
         ""row"": 8,
         ""size_x"": 4,
         ""size_y"": 4,
         ""slice_id"": ""70""
     },
     {
-        ""col"": 9,
-        ""row"": 12,
+        ""col"": 5,
+        ""row"": 8,
         ""size_x"": 4,
         ""size_y"": 4,
         ""slice_id"": ""71""
@@ -341,11 +278,25 @@ created_on,changed_on,id,dashboard_title,position_json,created_by_fk,changed_by_
         ""size_x"": 2,
         ""size_y"": 1,
         ""slice_id"": ""73""
+    },
+    {
+        ""col"": 1,
+        ""row"": 4,
+        ""size_x"": 6,
+        ""size_y"": 4,
+        ""slice_id"": ""75""
+    },
+    {
+        ""col"": 7,
+        ""row"": 4,
+        ""size_x"": 6,
+        ""size_y"": 2,
+        ""slice_id"": ""76""
     }
-]",1,2,"",,accradashboard,"{
+]",1,2,"","",accradashboard,"{
     ""filter_immune_slice_fields"": {},
     ""expanded_slices"": {},
     ""timed_refresh_immune_slices"": [],
-    ""default_filters"": ""{\""72\"":{\""agency_name\"":[]},\""73\"":{\""route_short_name\"":[]}}"",
-    ""filter_immune_slices"": []
+    ""filter_immune_slices"": [],
+    ""default_filters"": ""{\""72\"":{\""agency_name\"":[]},\""73\"":{\""route_short_name\"":[]}}""
 }"
