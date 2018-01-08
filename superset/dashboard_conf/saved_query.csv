@@ -1,0 +1,41 @@
+created_on,changed_on,id,user_id,db_id,label,schema,sql,description,changed_by_fk,created_by_fk
+"2017-12-13 17:02:30.850935","2017-12-13 17:02:30.851006",3,1,2,line_stops,main,"with stops_grouped as (select route_id, count(stop_id) as count_stops
+from stops_per_line
+group by route_id)
+select lines_infos.route_id, lines_infos.route_short_name, lines_infos.agency_name, stops_grouped.count_stops
+from lines_infos
+join stops_grouped on lines_infos.route_id = stops_grouped.route_id","",1,1
+"2017-12-13 18:54:42.772503","2017-12-13 18:54:42.772537",7,1,2,stops_per_agency,main,"with stops_infos as (select lines_infos.route_id, lines_infos.route_short_name, lines_infos.agency_name, stops_per_line.stop_id
+from lines_infos
+join stops_per_line on lines_infos.route_id = stops_per_line.route_id)
+select count(distinct stop_id) as count_stops_per_agency, agency_name
+from stops_infos","",1,1
+"2017-12-14 11:54:08.122887","2017-12-14 11:54:08.122924",11,1,2,stops_per_line_name,main,"with stops_infos as (select lines_infos.route_id, lines_infos.route_short_name, lines_infos.agency_name, stops_per_line.stop_id
+from lines_infos
+join stops_per_line on lines_infos.route_id = stops_per_line.route_id)
+select stops_infos.route_short_name as line_code, count(stop_id) as stops
+from stops_infos
+group by line_code
+order by stops DESC
+
+","",1,1
+"2017-12-21 10:53:30.680509","2017-12-21 10:53:30.680580",13,2,2,speed_vs_trip_daily_count,main,"with daily_trips as (SELECT route_id, trip_daily_count
+FROM trips_data
+group by route_id)
+select lines_infos.route_id, lines_infos.route_short_name, lines_infos.avg_speed_kmh, daily_trips.trip_daily_count
+from lines_infos
+join daily_trips on daily_trips.route_id = lines_infos.route_id
+order by lines_infos.avg_speed_kmh DESC
+","",2,2
+"2018-01-05 13:24:19.432487","2018-01-05 13:24:19.432536",14,2,2,stats_per_line,main,"with stops_grouped as (select route_id, count(stop_id) as count_stops
+from stops_per_line
+group by route_id)
+select lines_infos.route_id, lines_infos.route_short_name, lines_infos.route_long_name, lines_infos.agency_name, lines_infos.yearly_distance_km, lines_infos.total_co2, lines_infos.avg_speed_kmh, stops_grouped.count_stops
+from lines_infos
+join stops_grouped on lines_infos.route_id = stops_grouped.route_id","",2,2
+"2018-01-08 13:17:26.653876","2018-01-08 13:17:26.653940",16,2,2,stats_per_network,main,"with selected_stats as (select lines_infos.route_id, lines_infos.route_short_name, lines_infos.agency_name, lines_infos.yearly_distance_km, lines_infos.avg_speed_kmh, lines_infos.min_speed_kmh, lines_infos.max_speed_kmh, stops_per_line.stop_id
+from lines_infos
+join stops_per_line on lines_infos.route_id = stops_per_line.route_id)
+select agency_name, count(distinct route_id) as lines_count, count(distinct stop_id) as stops_count, sum(yearly_distance_km) as sum_distance, avg(avg_speed_kmh) as avg_speed, min(min_speed_kmh) as min_speed, max(max_speed_kmh) as max_speed 
+from selected_stats
+group by agency_name","",2,2
