@@ -16,6 +16,9 @@ data feed available at https://github.com/AFDLab4Dev/AccraMobility/tree/master/G
 
 The last command has to be launched periodically to update the dashboard informations. This can be done using crontab.
 
+NB: Trends data are computed each time the script is called. 
+
+
 ## To install Superset
 
 * Install [Docker CR](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/) and [Docker compose](https://docs.docker.com/compose/install/)

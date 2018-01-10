@@ -278,6 +278,121 @@ def get_stops_per_line(gtfs_source):
             trips_data = trips_data.drop(c, axis=1)
     return trips_data
 
+def create_trends_tables_if_necessary(db_file):
+    sql_create_global_trends = """
+        CREATE table IF NOT EXISTS trends_global (
+            dt datetime,
+            nb_lines int,
+            yearly_distance_km int,
+            total_co2 int,
+            min_speed_kmh int,
+            avg_speed_kmh int,
+            max_speed_kmh int,
+            nb_stoppoints int,
+            nb_stopareas int
+        );
+    """
+    sql_create_trends_per_line = """
+        CREATE table IF NOT EXISTS trends_per_line (
+            dt datetime,
+            route_id text,
+            route_short_name text,
+            route_long_name text,
+            agency_id text,
+            agency_name text,
+            yearly_distance_km int,
+            total_co2 int,
+            min_speed_kmh int,
+            avg_speed_kmh int,
+            max_speed_kmh int,
+            nb_stoppoints int,
+            nb_stopareas int
+        );
+    """
+
+    connexion = sqlite3.connect(db_file)
+    cursor = connexion.cursor()
+    cursor.execute(sql_create_global_trends)
+    cursor.execute(sql_create_trends_per_line)
+    connexion.commit()
+    connexion.close()
+
+
+
+def compute_trends_global(db_file):
+    sql_remove_global_data = "delete from trends_global where dt = date();"
+    sql_get_global_data = """
+        insert into trends_global
+            select date() as date, *
+            from
+            (
+            	select count(*) as nb_lines,
+                    sum(yearly_distance_km) as yearly_distance_km,
+                    sum(total_co2) as total_co2,
+                    min(min_speed_kmh) as min_speed_kmh,
+                    avg(avg_speed_kmh) as avg_speed_kmh,
+                    max(max_speed_kmh) as max_speed_kmh
+            	from lines_infos
+            )
+            cross join
+            (
+                select count(*) as nb_stoppoints
+                from stops
+                where location_type = "0"
+            )
+            cross join
+            (
+                select count(*) as nb_stopareas
+                from stops
+                where location_type = "1"
+            )
+    """
+    connexion = sqlite3.connect(db_file)
+    curseur = connexion.cursor()
+    curseur.execute(sql_remove_global_data)
+    curseur.execute(sql_get_global_data)
+    connexion.commit()
+    connexion.close()
+
+
+def compute_trends_per_line(db_file):
+    sql_remove_per_line_data = "delete from trends_per_line where dt = date();"
+    sql_get_per_line_data = """
+        insert into trends_per_line
+            select date() as date, tmp1.*, tmp2.stoparea_count
+            from
+            (
+            	select lines_infos.route_id, route_short_name, route_long_name,
+                    agency_id, agency_name,
+                    yearly_distance_km,
+                    total_co2,
+                    min_speed_kmh,
+                    avg_speed_kmh,
+                    max_speed_kmh,
+                    count(stops_per_line.stop_id) as stoppoints_count
+            	from lines_infos
+                    left join stops_per_line on lines_infos.route_id = stops_per_line.route_id
+                group by lines_infos.route_id
+            ) tmp1
+            left join
+            (
+                select distinct route_id, count(distinct parent_station) as stoparea_count
+                from stops_per_line
+                    inner join stops
+                        on stops.stop_id = stops_per_line.stop_id
+                        and location_type = "0"
+                        and not parent_station is null
+				group by route_id
+            ) tmp2 on tmp1.route_id = tmp2.route_id;
+    """
+    connexion = sqlite3.connect(db_file)
+    curseur = connexion.cursor()
+    curseur.execute(sql_remove_per_line_data)
+    curseur.execute(sql_get_per_line_data)
+    connexion.commit()
+    connexion.close()
+
+
 if __name__ == "__main__":
     gtfs_source = "https://github.com/AFDLab4Dev/AccraMobility/raw/master/GTFS/GTFS_Accra.zip"
     CO2_source = "data/co2_per_line.csv"
@@ -303,3 +418,7 @@ if __name__ == "__main__":
     stops_data.to_sql("stops", db_conn, if_exists="replace")
     stops_per_line = get_stops_per_line(gtfs_file)
     stops_per_line.to_sql("stops_per_line", db_conn, if_exists="replace")
+
+    create_trends_tables_if_necessary(dest_db)
+    compute_trends_global(dest_db)
+    compute_trends_per_line(dest_db)
