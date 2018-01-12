@@ -411,7 +411,8 @@ if __name__ == "__main__":
     line_complementary_infos_from_trips = get_line_complementary_infos_from_trips(trips_data)
     lines_data = get_lines_infos(gtfs_file, CO2_source, 150)
     lines_data = lines_data.merge(line_complementary_infos_from_trips, how='left', on="route_id")
-    lines_data["total_co2"] = lines_data["yearly_distance_km"] * lines_data["co2_per_km"]
+    # compute CO2 emissions in tones eq CO2
+    lines_data["total_co2"] = lines_data["yearly_distance_km"] * lines_data["co2_per_km"]/1000000
     lines_data.to_sql("lines_infos", db_conn, if_exists="replace")
 
     stops_data = get_stops_data(gtfs_file)
