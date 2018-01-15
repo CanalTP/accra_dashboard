@@ -13,5 +13,3 @@ echo -e ".separator ","\n.import superset/dashboard_conf/tables.csv tables" | sq
 sqlite3 superset/superset.db "drop table slices;"
 echo -e ".separator ","\n.import superset/dashboard_conf/slices.csv slices" | sqlite3 superset/superset.db
 
-sqlite3 superset/superset.db "drop saved_query;"
-echo -e ".separator ","\n.import superset/dashboard_conf/saved_query.csv saved_query" | sqlite3 superset/superset.db
