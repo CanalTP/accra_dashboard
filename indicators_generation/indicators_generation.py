@@ -278,7 +278,7 @@ def get_stops_per_line(gtfs_source):
             trips_data = trips_data.drop(c, axis=1)
     return trips_data
 
-def create_trends_tables_if_necessary(db_file):
+def compute_trends_global(db_file):
     sql_create_global_trends = """
         CREATE table IF NOT EXISTS trends_global (
             dt datetime,
@@ -292,34 +292,6 @@ def create_trends_tables_if_necessary(db_file):
             nb_stopareas int
         );
     """
-    sql_create_trends_per_line = """
-        CREATE table IF NOT EXISTS trends_per_line (
-            dt datetime,
-            route_id text,
-            route_short_name text,
-            route_long_name text,
-            agency_id text,
-            agency_name text,
-            yearly_distance_km int,
-            total_co2 int,
-            min_speed_kmh int,
-            avg_speed_kmh int,
-            max_speed_kmh int,
-            nb_stoppoints int,
-            nb_stopareas int
-        );
-    """
-
-    connexion = sqlite3.connect(db_file)
-    cursor = connexion.cursor()
-    cursor.execute(sql_create_global_trends)
-    cursor.execute(sql_create_trends_per_line)
-    connexion.commit()
-    connexion.close()
-
-
-
-def compute_trends_global(db_file):
     sql_remove_global_data = "delete from trends_global where dt = date();"
     sql_get_global_data = """
         insert into trends_global
@@ -349,6 +321,7 @@ def compute_trends_global(db_file):
     """
     connexion = sqlite3.connect(db_file)
     curseur = connexion.cursor()
+    curseur.execute(sql_create_global_trends)
     curseur.execute(sql_remove_global_data)
     curseur.execute(sql_get_global_data)
     connexion.commit()
@@ -356,13 +329,41 @@ def compute_trends_global(db_file):
 
 
 def compute_trends_per_line(db_file):
+    sql_create_trends_per_line = """
+        CREATE table IF NOT EXISTS trends_per_line (
+            dt datetime,
+            route_id text,
+            route_short_name text,
+            route_long_name text,
+            route_label text,
+            agency_id text,
+            agency_name text,
+            yearly_distance_km int,
+            total_co2 int,
+            min_speed_kmh int,
+            avg_speed_kmh int,
+            max_speed_kmh int,
+            nb_stoppoints int,
+            nb_stopareas int
+        );
+    """
+    sql_create_trends_per_line_stops = """
+        CREATE table IF NOT EXISTS trends_per_line_stops (
+            dt datetime,
+            route_id text,
+            stop_point_id text,
+            stop_area_id text
+        );
+    """
     sql_remove_per_line_data = "delete from trends_per_line where dt = date();"
+    sql_remove_per_line_stops_data = "delete from trends_per_line_stops where dt = date();"
     sql_get_per_line_data = """
         insert into trends_per_line
             select date() as date, tmp1.*, tmp2.stoparea_count
             from
             (
             	select lines_infos.route_id, route_short_name, route_long_name,
+                    route_label,
                     agency_id, agency_name,
                     yearly_distance_km,
                     total_co2,
@@ -385,10 +386,25 @@ def compute_trends_per_line(db_file):
 				group by route_id
             ) tmp2 on tmp1.route_id = tmp2.route_id;
     """
+    sql_get_per_line_stops_data = """
+        insert into trends_per_line_stops
+            select date() as date,
+                stops_per_line.route_id,
+                stops_per_line.stop_id as stop_point_id,
+                stops.parent_station as stop_area_id
+            from stops_per_line
+                inner join stops
+                    on stops.stop_id = stops_per_line.stop_id
+                        and location_type = "0";
+    """
     connexion = sqlite3.connect(db_file)
     curseur = connexion.cursor()
+    curseur.execute(sql_create_trends_per_line)
+    curseur.execute(sql_create_trends_per_line_stops)
     curseur.execute(sql_remove_per_line_data)
+    curseur.execute(sql_remove_per_line_stops_data)
     curseur.execute(sql_get_per_line_data)
+    curseur.execute(sql_get_per_line_stops_data)
     connexion.commit()
     connexion.close()
 
@@ -413,6 +429,7 @@ if __name__ == "__main__":
     lines_data = lines_data.merge(line_complementary_infos_from_trips, how='left', on="route_id")
     # compute CO2 emissions in tones eq CO2
     lines_data["total_co2"] = lines_data["yearly_distance_km"] * lines_data["co2_per_km"]/1000000
+    lines_data["route_label"] = lines_data["route_short_name"].map(str) + " - " + lines_data["route_long_name"]
     lines_data.to_sql("lines_infos", db_conn, if_exists="replace")
 
     stops_data = get_stops_data(gtfs_file)
@@ -420,6 +437,5 @@ if __name__ == "__main__":
     stops_per_line = get_stops_per_line(gtfs_file)
     stops_per_line.to_sql("stops_per_line", db_conn, if_exists="replace")
 
-    create_trends_tables_if_necessary(dest_db)
     compute_trends_global(dest_db)
     compute_trends_per_line(dest_db)
