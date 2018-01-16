@@ -10,6 +10,7 @@ from io import BytesIO
 from shapely.geometry import LineString
 import csv
 import datetime
+import logging
 
 def get_lines_speed(gtfs_source):
     with zipfile.ZipFile(gtfs_source, 'r') as myzip:
@@ -410,6 +411,10 @@ def compute_trends_per_line(db_file):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='accra_indicators.log',
+                        level=logging.INFO,
+                        format = '%(asctime)s :: %(levelname)s :: %(message)s')
+    logging.info("Updating Accra indicators")
     gtfs_source = "https://github.com/AFDLab4Dev/AccraMobility/raw/master/GTFS/GTFS_Accra.zip"
     CO2_source = "data/co2_per_line.csv"
     dest_db = "data/accra_indicators.db"

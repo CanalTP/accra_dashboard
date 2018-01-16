@@ -1,7 +1,7 @@
-Pipfile
 Pipfile.lock
 data/*.db
 *.ipynb
 .ipynb*
 __pycache__
 data/GTFS_Accra.zip
+*.log
