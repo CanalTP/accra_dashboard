@@ -1,24 +1,16 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [dev-packages]
 
-
-
 [packages]
-
 pandas = "*"
 requests = "*"
-shapely = "*"
 geopy = "*"
 pyproj = "*"
-pymssql = "*"
-
+shapely = "*"
 
 [requires]
-
-python_version = "3.5"
+python_version = "3.6"

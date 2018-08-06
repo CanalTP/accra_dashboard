@@ -6,7 +6,7 @@ services:
     volumes:
       - redis:/data
   superset:
-    image: amancevice/superset
+    image: amancevice/superset:0.21.1
     restart: always
     depends_on:
       - redis

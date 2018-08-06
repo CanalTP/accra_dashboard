@@ -10,7 +10,7 @@ data feed available at https://github.com/AFDLab4Dev/AccraMobility/tree/master/G
 ### To generate the indicators
 
 * Install pipenv : `pip3 install pipenv`
-* Create the virtual environnemnt with the required packages : `pipenv --python 3.5 install -r indicators_generation/requirements.txt`
+* Create the virtual environnemnt with the required packages : `pipenv --python 3.6 install -r indicators_generation/requirements.txt`
 * Activate the virtual environnemnt : `pipenv shell`
 * Run the script : `python indicators_generation/indicators_generation.py`
 
