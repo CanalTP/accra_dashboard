@@ -1,5 +1,7 @@
 # Accra Dashboard
 
+**This project is no more maintained, but feel free to reuse it !**
+
 ## Introduction
 
 This project aim to provide a global insight of the transit system in Accra.
